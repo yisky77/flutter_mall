@@ -7,7 +7,7 @@ flutter商城
   flutter_screenutil: ^0.6.0
   url_launcher: ^5.2.7
   flutter_launcher_icons: ^0.7.4
-#  flutter_easyrefresh: ^2.0.8
+  flutter_easyrefresh: ^2.0.8
   fluttertoast: ^3.1.3
   fluro: ^1.5.1
   provide: ^1.0.2
