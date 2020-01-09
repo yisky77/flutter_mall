@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 import '../../searchpro/searchproList.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../provide/searchpro_provide.dart';
 import '../../common/emptydata.dart';
 import '../../common/loadingWidget.dart';
+//import 'dart:convert';
+import '../../common/searchdataWidget.dart';
+
 
 //import 'dart:convert' as convert;
 class NewGoodsPage extends StatelessWidget {
@@ -43,11 +46,12 @@ class NewGoodsPage extends StatelessWidget {
           future:_getsearchBackInfo(context),
           builder: (context,snapshot){
             switch(snapshot.connectionState) {
-              case ConnectionState.none: return LoadingDataWidget();
-              case ConnectionState.active: return LoadingDataWidget();
-              case ConnectionState.waiting: return LoadingDataWidget();
+              case ConnectionState.none:
+              case ConnectionState.active:
+              case ConnectionState.waiting: return LoadingDataWidget();break;
               case ConnectionState.done:
-                if (snapshot.hasData) {
+                var newGoodslist = Provider.of<SearchProInfoProvide>(context).newGoodslistInfo['data']['list'];
+                if (snapshot.hasData && newGoodslist.length>0) {
                   return SingleChildScrollView(
                     child: new Container(
                       width: ScreenUtil().setWidth(750),
@@ -55,7 +59,7 @@ class NewGoodsPage extends StatelessWidget {
                       child: Column(
                         children: <Widget>[
                           stack,
-                          SearchProInfoWidget(),
+                          SearchProInfoWidget(newGoodslist),
                         ],
                       ),
                     ),
@@ -69,33 +73,24 @@ class NewGoodsPage extends StatelessWidget {
     );
   }
 
-  Widget SearchProInfoWidget() {
+  Widget SearchProInfoWidget(newGoodslist) {
     return Container(
         margin:EdgeInsets.only(top: 10.0),
         width: ScreenUtil().setWidth(750),
-        child: Provide<SearchProInfoProvide>(
-            builder:(context,child,val) {
-              var newGoodslist = Provide.value<SearchProInfoProvide>(context).newGoodslistInfo['data']['list'];
-              if (newGoodslist.length > 0) {
-                return new Container(
-                  width: ScreenUtil().setWidth(750),
-                  decoration: BoxDecoration(
-                      border: Border(
-                        //              right: BorderSide(width: 1,color:Colors.black12)
-                      )
-                  ),
-                  child: HotGoods(newGoodslist),//
-                );
-              } else {
-                return EmptyDataWidget();
-              }
-            }
-        )
-    );
+        child:  new Container(
+            width: ScreenUtil().setWidth(750),
+            decoration: BoxDecoration(
+                border: Border(
+                  //              right: BorderSide(width: 1,color:Colors.black12)
+                )
+            ),
+            child: HotGoods(newGoodslist),//
+          )
+        );
   }
 
   Future _getsearchBackInfo(BuildContext context ) async{
-    await  Provide.value<SearchProInfoProvide>(context).getNewGoodsInfos(currentPage);
+    await Provider.of<SearchProInfoProvide>(context, listen: false).getNewGoodsInfos(currentPage);
     return '完成加载';
   }
 }
@@ -124,38 +119,7 @@ class searchBarDelegate extends SearchDelegate<String>{
 
   @override
   Widget buildResults(BuildContext context) {
-    Provide.value<SearchProInfoProvide>(context).getSearchNameInfos(this.query,1);
-    return Container(
-        width: ScreenUtil().setWidth(750),
-        child: Provide<SearchProInfoProvide>(
-            builder:(context,child,val) {
-              var searchlist = Provide.value<SearchProInfoProvide>(context).newGoodslistInfo['data']['list'];
-              print(searchlist);
-              if (searchlist.length > 0) {
-                return SingleChildScrollView(
-                    child: Container(
-                      //                  width: ScreenUtil().setWidth(180),
-                      decoration: BoxDecoration(
-                          border: Border(
-                            //              right: BorderSide(width: 1,color:Colors.black12)
-                          )
-                      ),
-                      child: HotGoods(searchlist),//
-                    )
-                );
-              } else {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      EmptyDataWidget(),
-                    ],
-                  ),
-                );
-              }
-            }
-        )
-    );
+    return SearchDataWidget(query: this.query);
   }
 
   @override

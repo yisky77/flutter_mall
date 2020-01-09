@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../common/titleWidget.dart';
 import '../../routers/application.dart';
+import 'package:fluro/fluro.dart';
 
 // 首页轮播组件编写
 class NewGoods extends StatelessWidget {
@@ -19,10 +21,9 @@ class NewGoods extends StatelessWidget {
             itemBuilder:(context,index){
               return  InkWell(
                 onTap:(){
-                  Application.router.navigateTo(context,"/detail?id=${newGoodsList[index]['id']}");
+                  Application.router.navigateTo(context,"/detail?id=${newGoodsList[index]['id']}", transition: TransitionType.cupertino);
                 },
                 child: Container(
-                  //              alignment: Alignment.centerLeft,
                   width: ScreenUtil().setWidth(300),
 //                  height: ScreenUtil().setHeight(300),
                   padding: EdgeInsets.all(10.0),
@@ -37,7 +38,7 @@ class NewGoods extends StatelessWidget {
                       Text(
                         '${newGoodsList[index]['name']}',
                         maxLines: 1,
-                        overflow:TextOverflow.ellipsis ,
+                        overflow:TextOverflow.ellipsis,
                         textAlign:TextAlign.left,
                         style: TextStyle(color:Colors.black,fontSize: ScreenUtil().setSp(26),),
                       ),

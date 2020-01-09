@@ -50,7 +50,7 @@ class Brand extends StatelessWidget {
         );
         return InkWell(
             onTap:(){
-                Application.router.navigateTo(context,"/brandGoodsPage", transition: TransitionType.inFromRight);
+                Application.router.navigateTo(context,"/brandGoodsPage", transition: TransitionType.cupertino);
             },
             child: Container(
 //              alignment: Alignment.centerLeft,

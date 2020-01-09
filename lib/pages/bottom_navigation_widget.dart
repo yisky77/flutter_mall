@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'category_screen.dart';
@@ -11,7 +10,6 @@ class BottomNavigationWidget extends StatefulWidget {
 }
 
 class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
-//  final _BottomNavigationColor = Colors.blue;
   int _currentIndex = 0;
   List<Widget> list = List();
 
@@ -58,23 +56,33 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
       bottomNavigationBar: BottomNavigationBar(
           items: [
             BottomNavigationBarItem(
-                icon: _currentIndex == 0 ? Image.asset('assets/images/icon/tab-home-current.png',width:32.0,height: 32.0): Image.asset('assets/images/icon/tab-home.png',width:32.0,height: 32.0),
-                title: Text('首页',style:TextStyle(color: _currentIndex == 0 ? Color(0xfffa436a):Color(0xffc0c4cc)))
+                activeIcon: Image.asset('assets/images/icon/tab-home-current.png',width:32.0,height: 32.0),
+                icon: Image.asset('assets/images/icon/tab-home.png',width:32.0,height: 32.0),
+                title: Text('首页')
             ),
             BottomNavigationBarItem(
-                icon: _currentIndex == 1 ? Image.asset('assets/images/icon/tab-cate-current.png',width:32.0,height: 32.0): Image.asset('assets/images/icon/tab-cate.png',width:32.0,height: 32.0),
-                title:Text('分类',style:TextStyle(color: _currentIndex == 1 ? Color(0xfffa436a):Color(0xffc0c4cc)))
+                activeIcon: Image.asset('assets/images/icon/tab-cate-current.png',width:32.0,height: 32.0),
+                icon: Image.asset('assets/images/icon/tab-cate.png',width:32.0,height: 32.0),
+                title:Text('分类')
             ),
             BottomNavigationBarItem(
-                icon:  _currentIndex == 2 ? Image.asset('assets/images/icon/tab-cart-current.png',width:32.0,height: 32.0): Image.asset('assets/images/icon/tab-cart.png',width:32.0,height: 32.0),
-                title:Text('购物车',style:TextStyle(color: _currentIndex == 2 ? Color(0xfffa436a):Color(0xffc0c4cc)))
+                activeIcon: Image.asset('assets/images/icon/tab-cart-current.png',width:32.0,height: 32.0),
+                icon: Image.asset('assets/images/icon/tab-cart.png',width:32.0,height: 32.0),
+                title:Text('购物车')
             ),
             BottomNavigationBarItem(
-                icon: _currentIndex == 3 ? Image.asset('assets/images/icon/tab-my-current.png',width:32.0,height: 32.0): Image.asset('assets/images/icon/tab-my.png',width:32.0,height: 32.0),
-                title:Text('会员中心',style:TextStyle(color: _currentIndex == 3 ? Color(0xfffa436a):Color(0xffc0c4cc)))
+                activeIcon: Image.asset('assets/images/icon/tab-my-current.png',width:32.0,height: 32.0),
+                icon: Image.asset('assets/images/icon/tab-my.png',width:32.0,height: 32.0),
+                title:Text('会员中心')
             ),
           ],
           currentIndex:_currentIndex,
+          selectedFontSize: 12,
+          unselectedFontSize: 12,
+          showSelectedLabels: true,//是否显示选中的文字
+          showUnselectedLabels: true,//是否显示未选中的文字
+          unselectedItemColor: Color(0xffc0c4cc),
+          selectedItemColor: Color(0xfffa436a),
           onTap:(int index){
             setState((){
               _currentIndex= index;

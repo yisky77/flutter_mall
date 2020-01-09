@@ -5,6 +5,7 @@ class Counter with ChangeNotifier{
 
   increate() {
     value++;
+    print(value);
     notifyListeners();
   }
 

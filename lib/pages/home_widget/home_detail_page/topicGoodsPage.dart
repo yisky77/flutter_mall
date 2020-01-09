@@ -1,66 +1,109 @@
 import 'package:flutter/material.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../provide/searchpro_provide.dart';
 import '../../common/emptydata.dart';
 import '../../common/loadingWidget.dart';
-import '../../../routers/application.dart';
+//import '../../../routers/application.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
 
-class TopicGoodsPage extends StatelessWidget {
+//import 'package:flutter_easyrefresh/material_header.dart';
+//import 'package:flutter_easyrefresh/material_footer.dart';
+import 'package:flutter_easyrefresh/bezier_circle_header.dart';
+import 'package:flutter_easyrefresh/bezier_bounce_footer.dart';
+
+class TopicGoodsPage extends StatefulWidget {
+  @override
+  _TopicGoodsPageState createState() => _TopicGoodsPageState();
+}
+
+class _TopicGoodsPageState extends State<TopicGoodsPage> {
   int currentPage = 1;
+  EasyRefreshController _controller;
+  @override
+  void initState() {
+    super.initState();
+    _controller = EasyRefreshController();
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar:AppBar(
-        title:Text('专题精选列表'),
-        centerTitle: true,
-      ),
-      body: FutureBuilder(
-          future:_getsearchBackInfo(context),
-          builder: (context,snapshot){
-            switch(snapshot.connectionState) {
-              case ConnectionState.none: return LoadingDataWidget();
-              case ConnectionState.active: return LoadingDataWidget();
-              case ConnectionState.waiting: return LoadingDataWidget();
-              case ConnectionState.done:
-                if (snapshot.hasData) {
-                  return SizedBox(
-                    width: ScreenUtil().setWidth(750),
-                    child: Provide<SearchProInfoProvide>(
-                        builder:(context,child,val) {
-                          var topicGoodslist = Provide.value<SearchProInfoProvide>(context).topicGoodslistInfo['data']['list'];
-                          if (topicGoodslist.length > 0) {
-                            return Container(
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('专题精选列表'),
+          centerTitle: true,
+        ),
+        body: FutureBuilder(
+            future: _getsearchBackInfo(context, false),
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                  return LoadingDataWidget();
+                case ConnectionState.active:
+                  return LoadingDataWidget();
+                case ConnectionState.waiting:
+                  return LoadingDataWidget();
+                case ConnectionState.done:
+                  SearchProInfoProvide topicGoods = Provider.of<SearchProInfoProvide>(context);
+                  if (snapshot.hasData || topicGoods.topicGoodslistInfo != null) {
+                    var topicGoodslist = topicGoods.topicGoodslistInfo;
+                    if (topicGoodslist.length > 0) {
+                      return SizedBox(
+                            width: ScreenUtil().setWidth(750),
+                            child: Container(
                                 color: Color(0xfffffffff),
-                                child: ListView.builder(
-                                  itemCount: topicGoodslist.length,
-                                  itemBuilder: (context, index) {
-                                    return contentInkWel(context, index, topicGoodslist);
+                                child: EasyRefresh.custom(
+                                  topBouncing:false,
+                                  controller: _controller,
+                                  header: BezierCircleHeader(),
+                                  footer: BezierBounceFooter(),
+                                  enableControlFinishRefresh: false,
+                                  enableControlFinishLoad: true,//是否开启控制结束加载
+                                  slivers: <Widget>[
+                                    SliverList(
+                                      delegate: SliverChildBuilderDelegate((context, index) {
+                                          return contentInkWel(index, topicGoodslist);
+                                        },
+                                        childCount: topicGoodslist.length,
+                                      ),
+                                    ),
+                                  ],
+                                  onRefresh: () async{
+                                    this.currentPage = 1;
+                                    _getsearchBackInfo(context,false);
                                   },
-//                        ),
+                                  onLoad: () async {
+                                      this.currentPage += 1;
+                                      _getsearchBackInfo(context,true);
+                                  },
                                 )
-                            );
-                          } else {
-                            return EmptyDataWidget();
-                          }
-                        }
-                    ),
-                  );
-                } else {
-                  return EmptyDataWidget();
-                };
+                            ),
+                      );
+                    } else {
+                      return EmptyDataWidget();
+                    }
+                  } else {
+                    return EmptyDataWidget();
+                  };
+              }
             }
-          }
-      ),
-    );
+        ),
+      );
   }
 
-  Future _getsearchBackInfo(BuildContext context ) async{
-    await  Provide.value<SearchProInfoProvide>(context).getTopicGoodsInfos(currentPage);
+  Future _getsearchBackInfo(BuildContext context,bool isloadmore ) async{
+//    await Provider.of<SearchProInfoProvide>(context, listen: false).getTopicGoodsInfos(currentPage, isloadmore);
+//    return '完成加载';
+    var TopicGoods = Provider.of<SearchProInfoProvide>(context, listen: false);
+    await TopicGoods.getTopicGoodsInfos(currentPage,isloadmore).then((res) {
+      _controller.finishLoad(success:true);
+      if(TopicGoods.noMoreTopicData) {
+        _controller.finishLoad(noMore: true);
+      }
+    });
     return '完成加载';
   }
 
-  Widget contentInkWel(context,int index, topicGoodslist){
+  Widget contentInkWel(index, topicGoodslist){
     var stack = new Column(
         children: <Widget>[
            new Image.network('${topicGoodslist[index]['picUrl']}',width: ScreenUtil().setWidth(750),

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../login_screen.dart';
 
 //
 class ListTileWidget extends StatelessWidget {
   final String titletxt;
   final String subtitle;
   final IconData iconpic;
-  ListTileWidget({Key key,this.titletxt,this.subtitle,this.iconpic}):super(key:key);
+  final int id;
+  ListTileWidget({Key key,this.titletxt,this.subtitle,this.iconpic,this.id}):super(key:key);
 //  拨打电话
   void _launchURL() async {
     var phone = '17688886201';
@@ -19,12 +22,14 @@ class ListTileWidget extends StatelessWidget {
     }
   }
   //
-  Widget _titleWidget(){
-
+  Widget _titleWidget(context){
     return InkWell(
         onTap:(){
-          print('点击了${titletxt}标题');
-          _launchURL();
+//          _launchURL();
+          print(id);
+          Navigator.push(context, new CupertinoPageRoute(builder: (BuildContext context){
+            return LoginPage();
+          }));
         },
         child: Container(
           margin: EdgeInsets.fromLTRB(10.0, 0.0, 10.0,0.0),
@@ -77,6 +82,6 @@ class ListTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 //    print(newGoodsList);
-    return _titleWidget();
+    return _titleWidget(context);
   }
 }

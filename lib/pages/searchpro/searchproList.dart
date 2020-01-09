@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../common/emptydata.dart';
+import '../../routers/application.dart';
+import 'package:fluro/fluro.dart';
 
 // 首页轮播组件编写
 class HotGoods extends StatelessWidget {
@@ -15,20 +17,23 @@ class HotGoods extends StatelessWidget {
       color:Color(0xfff5f5f5),
       child: Column(
         children: <Widget>[
-          _wrapList(),   //人气推荐内容渲染
+          _wrapList(context),   //人气推荐内容渲染
         ],
       )
     );
   }
 
   //人气推荐内容渲染
-  Widget _wrapList(){
+  Widget _wrapList(context){
     if(hotGoodsList.length!=0){
       List<Widget> listWidget = hotGoodsList.map((val){
         return InkWell(
-            onTap:(){print('点击了人气商品');},
+            onTap:(){
+              Application.router.navigateTo(context,"/detail?id=${val['id']}", transition: TransitionType.cupertino);
+
+            },
             child: Container(
-//              alignment: Alignment.centerLeft,
+              alignment: Alignment.centerLeft,
               width: ScreenUtil().setWidth(374),
               height: ScreenUtil().setHeight(440),
               padding: EdgeInsets.all(5.0),
@@ -80,6 +85,8 @@ class HotGoods extends StatelessWidget {
 
       return Wrap(
         spacing: 0,
+        runAlignment:WrapAlignment.end,
+        alignment:WrapAlignment.end,
         children: listWidget,
       );
     }else{

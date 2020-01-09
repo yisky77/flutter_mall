@@ -5,11 +5,13 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../routers/application.dart';
 import 'package:fluro/fluro.dart';
 //import '../category_screen.dart';
+import './home_detail_page/newGoodsPage.dart';
+import '../person_widget/order/order.dart';
 
 class TopNavigator extends StatelessWidget {
   final List navigatorList = [
     {'name':'联系客服','img': 'coupon.png','id':0},
-    {'name':'订单','img': '02.gif','id':1},
+    {'name':'全部订单','img': '02.gif','id':1},
     {'name':'人气推荐','img': 'new_nav_3.png','id':2},
     {'name':'品牌商','img': '04.gif','id':3},
     {'name':'专题精选','img': '3.png','id':4},
@@ -26,11 +28,19 @@ class TopNavigator extends StatelessWidget {
         int id = item['id'];
         switch (id) {
           case 0: _launchURL('tel:17688886201');break;
-          case 1: return Application.router.navigateTo(context,"/hotGoodsPage", transition: TransitionType.cupertino);break;
-          case 2: return Application.router.navigateTo(context,"/hotGoodsPage", transition: TransitionType.cupertino);break;
+//          case 1: return Application.router.navigateTo(context,"/myorder", transition: TransitionType.cupertino);break;
+          case 1: Navigator.push(context, new CupertinoPageRoute(builder: (BuildContext context){
+            return KeepAliveDemo(0);
+          }));break;
+          case 2: return Application.router.navigateTo(context,"/hotGoodsPage", clearStack: true, transition: TransitionType.cupertino);break;
           case 3: return Application.router.navigateTo(context,"/brandGoodsPage", transition: TransitionType.cupertino);break;
           case 4: return Application.router.navigateTo(context,"/topicGoodsPage", transition: TransitionType.cupertino);break;
-          case 5: return Application.router.navigateTo(context,"/newGoodsPage", transition: TransitionType.cupertino);break;
+//          case 5: return Application.router.navigateTo(context,"/newGoodsPage", transition: TransitionType.cupertino);break;
+          case 5:
+            Navigator.push(context, new CupertinoPageRoute(builder: (BuildContext context){
+              return NewGoodsPage();
+            }));
+            break;
           case 6:  _launchURL('https://m.jd.com/');break;
           case 7:  _launchURL('https://h5.m.taobao.com/');break;
           case 8:  _launchURL('http://m.pinduoduo.com/');break;
@@ -68,7 +78,7 @@ class TopNavigator extends StatelessWidget {
       navigatorList.removeRange(10, navigatorList.length);
     }
     return Container(
-      height: ScreenUtil().setHeight(320),
+      height: 160,
       padding:EdgeInsets.all(5.0),
       margin:EdgeInsets.all(5.0),
       child: GridView.count(

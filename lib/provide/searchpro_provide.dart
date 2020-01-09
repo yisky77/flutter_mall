@@ -5,29 +5,22 @@ import 'dart:convert';
 
 class SearchProInfoProvide with ChangeNotifier{
 
-  var searchProInfo ;
-  var searchProlistInfo;
-  var hotGoodslistInfo;
-  var newGoodslistInfo;
-  var topicGoodslistInfo;
-  var brandGoodslistInfo;
+  var searchProInfo = null;
+  var searchProlistInfo = null;
+  var hotGoodslistInfo = null;
+  var newGoodslistInfo = null;
+  List topicGoodslistInfo = null;
+  var brandGoodslistInfo = null;
+  bool noMoreTopicData = false;
   int currentPage = 1;
 
   //获取指定二级分类id的商品列表
-  getSearchProInfos(int currentPage, String id) async{
+  getSearchProInfos(int currentPage, String id ) async{
     var formData = { 'page': currentPage, 'categoryId':id , 'limit':10 };
-//    print(id);
     await request('get', 'searchgoodslist', formData: formData ).then((val){
       var responseData = json.decode(val.toString());
       print(responseData);
       searchProInfo = responseData;
-//       categoryleftInfo = responseData['data'];
-//       categoryidInfo = categoryleftInfo['currentSubCategory'];
-//       picurl = categoryleftInfo.currentCategory.picurl;
-//      print(categoryleftInfo.currentCategory);
-//      SearchProInfo = SearchProModel.fromJson(responseData);
-//      print('222222');
-//      print(SearchProInfo);
       notifyListeners();
     });
   }
@@ -37,31 +30,34 @@ class SearchProInfoProvide with ChangeNotifier{
     var formData = {'keyword': keyword, 'page': currentPage, 'limit':10, 'sort': 'name', 'order': 'asc', 'categoryId': 0 };
     await request('get', 'searchgoodslist', formData: formData ).then((val){
       var responseData = json.decode(val.toString());
-//      print(responseData);
       searchProlistInfo = responseData;
-//       categoryleftInfo = responseData['data'];
-//       categoryidInfo = categoryleftInfo['currentSubCategory'];
-//       picurl = categoryleftInfo.currentCategory.picurl;
-//      print(categoryleftInfo.currentCategory);
-//      SearchProlistInfo = SearchProModel.fromJson(responseData);
-//      print('888888888');
-//      print(SearchProlistInfo);
       notifyListeners();
     });
   }
 
   //获取人气推荐商品列表
-  getHotGoodsInfos(int currentPage) async{
+  getHotGoodsInfos(int currentPage, bool isloadmore) async{
+    print(currentPage);
     var formData = {'isHot': true, 'page': currentPage, 'limit':10, 'sort': 'add_time', 'order': 'desc', 'categoryId': 0 };
     await request('get', 'searchgoodslist', formData: formData ).then((val){
-      var responseData = json.decode(val.toString());
-      hotGoodslistInfo = responseData;
+      var responseData = json.decode(val.toString())['data'];
+      List listdata = (responseData['list'] as List).cast();
+      print(listdata);
+      print(listdata.length);
+      if(isloadmore && listdata.length>0) {
+        hotGoodslistInfo.addAll(listdata);
+      } else {
+        hotGoodslistInfo = listdata;
+      }
+//      如果是最后一页
+      if(responseData['page'] >= responseData['pages']) noMoreTopicData = true;
+      else noMoreTopicData = false;
       notifyListeners();
     });
   }
 
   //获取新品首发商品列表
-  getNewGoodsInfos(int currentPage) async{
+  getNewGoodsInfos(responseData) async{
     var formData = {'isNew': true, 'page': currentPage, 'limit':10, 'sort': 'add_time', 'order': 'desc', 'categoryId': 0 };
     await request('get', 'searchgoodslist', formData: formData ).then((val){
       var responseData = json.decode(val.toString());
@@ -71,21 +67,38 @@ class SearchProInfoProvide with ChangeNotifier{
   }
 
   //获取专题精选商品列表
-  getTopicGoodsInfos(int currentPage) async{
+  getTopicGoodsInfos(int currentPage,bool isloadmore) async{
     var formData = {'page': currentPage, 'limit':10 };
     await request('get', 'Topicgoodslist', formData: formData ).then((val){
-      var responseData = json.decode(val.toString());
-      topicGoodslistInfo = responseData;
+      var responseData = json.decode(val.toString())['data'];
+      List listdata = (responseData['list'] as List).cast();
+      if(isloadmore && listdata.length>0) {
+        topicGoodslistInfo.addAll(listdata);
+      } else {
+        topicGoodslistInfo = listdata;
+      }
+//      如果是最后一页
+      if(responseData['page'] >= responseData['pages']) noMoreTopicData = true;
+      else noMoreTopicData = false;
+      return noMoreTopicData;
       notifyListeners();
     });
   }
 
   //获取品牌商列表
-  getBrandGoodsInfos(int currentPage) async{
+  getBrandGoodsInfos(int currentPage,bool isloadmore) async{
     var formData = {'page': currentPage, 'limit':10 };
     await request('get', 'Brandgoodslist', formData: formData ).then((val){
-      var responseData = json.decode(val.toString());
-      brandGoodslistInfo = responseData;
+      var responseData = json.decode(val.toString())['data'];
+      List listdata = (responseData['list'] as List).cast();
+      if(isloadmore && listdata.length>0) {
+        brandGoodslistInfo.addAll(listdata);
+      } else {
+        brandGoodslistInfo = listdata;
+      }
+//      如果是最后一页
+      if(responseData['page'] >= responseData['pages']) noMoreTopicData = true;
+      else noMoreTopicData = false;
       notifyListeners();
     });
   }

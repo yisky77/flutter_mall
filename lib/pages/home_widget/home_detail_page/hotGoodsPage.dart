@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 import '../../searchpro/searchproList.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../provide/searchpro_provide.dart';
 import '../../common/emptydata.dart';
 import '../../common/loadingWidget.dart';
+import '../../common/searchdataWidget.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
+//import 'package:flutter_easyrefresh/material_header.dart';
+//import 'package:flutter_easyrefresh/material_footer.dart';
+import 'package:flutter_easyrefresh/bezier_circle_header.dart';
+import 'package:flutter_easyrefresh/bezier_bounce_footer.dart';
 
-//import 'dart:convert' as convert;
-class HotGoodsPage extends StatelessWidget {
-  int currentPage = 1;
-  String pic = 'http://yanxuan.nosdn.127.net/bf3499ac17a11ffb9bb7caa47ebef2dd.png';
+  class HotGoodsPage extends StatefulWidget {
+    @override
+    _HotGoodsPageState createState() => _HotGoodsPageState();
+  }
 
+  class _HotGoodsPageState extends State<HotGoodsPage> {
+    int currentPage = 1;
+    EasyRefreshController _controller;
+    String pic = 'http://yanxuan.nosdn.127.net/bf3499ac17a11ffb9bb7caa47ebef2dd.png';
+
+    @override
+    void initState() {
+    super.initState();
+    _controller = EasyRefreshController();
+  }
   @override
   Widget build(BuildContext context) {
     var stack = new Stack(
@@ -41,7 +57,7 @@ class HotGoodsPage extends StatelessWidget {
           ]
       ),
       body: FutureBuilder(
-          future:_getsearchBackInfo(context),
+          future:_getsearchBackInfo(context,false),
           builder: (context,snapshot){
             switch(snapshot.connectionState) {
               case ConnectionState.none: return LoadingDataWidget();
@@ -49,54 +65,71 @@ class HotGoodsPage extends StatelessWidget {
               case ConnectionState.waiting: return LoadingDataWidget();
               case ConnectionState.done:
                 if (snapshot.hasData) {
-                  return SingleChildScrollView(
-                    child: new Container(
-                      width: ScreenUtil().setWidth(750),
-                      color: Color(0xfff5f5f5),
-                      child: Column(
-                        children: <Widget>[
-                          stack,
-                          SearchProInfoWidget(),
-                        ],
-                      ),
-                    ),
-                  );
-                } else {
-                  return EmptyDataWidget();
-                };
+                  SearchProInfoProvide topicGoods = Provider.of<SearchProInfoProvide>(context);
+                  var hotGoodslist = topicGoods.hotGoodslistInfo;
+                  if (hotGoodslist.length > 0) {
+                    return EasyRefresh.custom(
+                      topBouncing:false,
+                      controller: _controller,
+                      header: BezierCircleHeader(),
+                      footer: BezierBounceFooter(),
+                      enableControlFinishRefresh: false,
+                      enableControlFinishLoad: true,//是否开启控制结束加载
+                      slivers: <Widget>[
+//                        stack,
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate((context, index) {
+                            return SingleChildScrollView(
+                              child: new Container(
+                                width: ScreenUtil().setWidth(750),
+                                color: Color(0xfff5f5f5),
+                                child: Column(
+                                  children: <Widget>[
+                                    stack,
+                                    Container(
+                                        margin:EdgeInsets.only(top: 10.0),
+                                        width: ScreenUtil().setWidth(750),
+                                        child: Container(
+                                          width: ScreenUtil().setWidth(750),
+                                          child: HotGoods(hotGoodslist),
+                                        )
+                                    )
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          childCount: hotGoodslist.length,
+                          ),
+                        ),
+                      ],
+                      onRefresh: () async{
+                        this.currentPage = 1;
+                        _getsearchBackInfo(context,false);
+                      },
+                      onLoad: () async {
+                        this.currentPage += 1;
+                        _getsearchBackInfo(context,true);
+                      },
+                    );
+                  } else {
+                    return EmptyDataWidget();
+                  };
+                }
             }
           }
       ),
     );
   }
 
-  Widget SearchProInfoWidget() {
-    return Container(
-        margin:EdgeInsets.only(top: 10.0),
-        width: ScreenUtil().setWidth(750),
-        child: Provide<SearchProInfoProvide>(
-            builder:(context,child,val) {
-              var searchlist = Provide.value<SearchProInfoProvide>(context).hotGoodslistInfo['data']['list'];
-              if (searchlist.length > 0) {
-                return new Container(
-                  width: ScreenUtil().setWidth(750),
-                  decoration: BoxDecoration(
-                      border: Border(
-                        //              right: BorderSide(width: 1,color:Colors.black12)
-                      )
-                  ),
-                  child: HotGoods(searchlist),//
-                );
-              } else {
-                return EmptyDataWidget();
-              }
-            }
-        )
-    );
-  }
-
-  Future _getsearchBackInfo(BuildContext context ) async{
-    await  Provide.value<SearchProInfoProvide>(context).getHotGoodsInfos(currentPage);
+  Future _getsearchBackInfo(BuildContext context,bool isloadmore ) async{
+    var topicGoods = Provider.of<SearchProInfoProvide>(context, listen: false);
+    await topicGoods.getHotGoodsInfos(currentPage,isloadmore).then((res) {
+      _controller.finishLoad(success:true);
+      if(topicGoods.noMoreTopicData) {
+        _controller.finishLoad(noMore: true);
+      }
+    });
     return '完成加载';
   }
 }
@@ -124,38 +157,8 @@ class searchBarDelegate extends SearchDelegate<String>{
   }
 
   @override
-  Widget buildResults(BuildContext context) {
-    Provide.value<SearchProInfoProvide>(context).getSearchNameInfos(this.query,1);
-    return Container(
-        width: ScreenUtil().setWidth(750),
-        child: Provide<SearchProInfoProvide>(
-            builder:(context,child,val) {
-              var hotGoodslist = Provide.value<SearchProInfoProvide>(context).hotGoodslistInfo['data']['list'];
-              if (hotGoodslist.length > 0) {
-                return SingleChildScrollView(
-                    child: Container(
-                      //                  width: ScreenUtil().setWidth(180),
-                      decoration: BoxDecoration(
-                          border: Border(
-                            //              right: BorderSide(width: 1,color:Colors.black12)
-                          )
-                      ),
-                      child: HotGoods(hotGoodslist),//
-                    )
-                );
-              } else {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      EmptyDataWidget(),
-                    ],
-                  ),
-                );
-              }
-            }
-        )
-    );
+  Widget buildResults(BuildContext context){
+    return SearchDataWidget(query: this.query);
   }
 
   @override

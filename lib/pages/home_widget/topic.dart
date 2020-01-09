@@ -35,8 +35,9 @@ class Topic extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemBuilder:(context,index){
               return  InkWell(
-                onTap:(){print('点击了专题精选: ${topicList[index]['id']}');
-                Application.router.navigateTo(context,"/topicGoodsPage", transition: TransitionType.inFromRight);
+                onTap:(){
+                  Application.router.navigateTo(context,"/topicGoodsPage", transition: TransitionType.cupertino);
+//                  Application.router.navigateTo(context,"/detail?id=${topicList[index]['id']}", transition: TransitionType.inFromRight);
                 },
                 child: Container(
                   width: ScreenUtil().setWidth(600),
@@ -67,7 +68,8 @@ class Topic extends StatelessWidget {
                           )
                       ),
                       new Container(
-//                          padding: EdgeInsets.fromLTRB(30.0, 0.0, 0.0, 5.0),
+                          width: ScreenUtil().setWidth(600),
+//                          height: ScreenUtil().setHeight(100),
                           alignment: Alignment.centerLeft,
                           child: Row(
                             children: <Widget>[
@@ -75,8 +77,8 @@ class Topic extends StatelessWidget {
                                 '${topicList[index]['subtitle']}',
                                 textAlign:TextAlign.left,
                                 maxLines: 1,
-                                overflow:TextOverflow.ellipsis ,
-                                style: TextStyle(color:Color(0xff999999),fontSize: ScreenUtil().setSp(26)),
+                                overflow:TextOverflow.ellipsis,
+                                style: TextStyle(color:Color(0xff999999), fontSize: ScreenUtil().setSp(26)),
                               ),
 //                              Text(
 //                                '(阅读量: ${topicList[index]['readCount']})',

@@ -15,12 +15,12 @@ class TitleWidget extends StatelessWidget {
     return InkWell(
         onTap:(){print('点击了${titletxt}标题');
           switch(type) {
-              case 'isHot': return Application.router.navigateTo(context,"/hotGoodsPage", transition: TransitionType.inFromRight);
-              case 'isNew': return Application.router.navigateTo(context,"/newGoodsPage", transition: TransitionType.inFromRight);
-              case 'isTopic': return Application.router.navigateTo(context,"/topicGoodsPage", transition: TransitionType.inFromRight);
-              case 'isBrand': return Application.router.navigateTo(context,"/brandGoodsPage", transition: TransitionType.inFromRight);
+              case 'isHot': return Application.router.navigateTo(context,"/hotGoodsPage", transition: TransitionType.cupertino);
+              case 'isNew': return Application.router.navigateTo(context,"/newGoodsPage", transition: TransitionType.cupertino);
+              case 'isTopic': return Application.router.navigateTo(context,"/topicGoodsPage", transition: TransitionType.cupertino);
+              case 'isBrand': return Application.router.navigateTo(context,"/brandGoodsPage", transition: TransitionType.cupertino);
             }
-//           Application.router.navigateTo(context,"/searchprolist?id=${val['id']}",transition: TransitionType.inFromRight);
+//           Application.router.navigateTo(context,"/searchprolist?id=${val['id']}",transition: TransitionType.cupertino);
         },
         child: Container(
             width: ScreenUtil().setWidth(750),

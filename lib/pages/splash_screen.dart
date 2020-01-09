@@ -1,52 +1,101 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'bottom_navigation_widget.dart';
+import 'swiperView.dart';
+import 'login_screen.dart';
+//import '../routers/application.dart';
+//import 'package:fluro/fluro.dart';
 
 class SplashScreen extends StatefulWidget {
-  _SplashScreenState createState() => _SplashScreenState();
+  @override
+  _SplashPageState createState() => _SplashPageState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashPageState extends State<SplashScreen> with TickerProviderStateMixin {
+  AnimationController _logoController;
+  Tween _scaleTween;
+  CurvedAnimation _logoAnimation;
 
-  AnimationController _controller;
-  Animation _animation;
-
+  @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync:this,duration:Duration(milliseconds:2000));
-    _animation = Tween(begin: 0.3,end:1.0).animate(_controller);
+    _scaleTween = Tween(begin: 0, end: 1);
+    _logoController =
+    AnimationController(vsync: this, duration: Duration(milliseconds: 300))
+      ..drive(_scaleTween);
+    Future.delayed(Duration(milliseconds: 500), () {
+      _logoController.forward();
+    });
+    _logoAnimation =
+        CurvedAnimation(parent: _logoController, curve: Curves.easeOutQuart);
 
-
-    /*动画事件监听器，
-    它可以监听到动画的执行状态，
-    我们这里只监听动画是否结束，
-    如果结束则执行页面跳转动作。 */
-    _animation.addStatusListener((status){
-      if(status == AnimationStatus.completed){
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context)=>BottomNavigationWidget()),
-                (route)=> route==null);
+    _logoController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Future.delayed(Duration(milliseconds: 300), () {
+          goPage();
+        });
       }
     });
-    //播放动画
-    _controller.forward();
+  }
+
+  void goPage() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if(prefs.getBool('ishome') != null ) {
+//      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>SwiperViewPage()), (route)=> route==null);
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>BottomNavigationWidget()), (route)=> route==null);
+    } else {
+//      Application.router.navigateTo(context,"/login", clearStack:true,transition: TransitionType.cupertino);
+//      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>LoginPage()), (route)=> route==null);
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>SwiperViewPage()), (route)=> route==null);
+    }
+//    await Application.initSp();
+//    UserModel userModel = Provider.of<UserModel>(context);
+//    userModel.initUser();
+//    if (userModel.user != null) {
+//      await NetUtils.refreshLogin(context).then((value){
+//        if(value.data != -1){
+//          NavigatorUtil.goHomePage(context);
+//        }
+//      });
+//      Provider.of<PlayListModel>(context).user = userModel.user;
+//    } else
+//      NavigatorUtil.goLoginPage(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
+    final size = MediaQuery.of(context).size;
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Container(
+          height: 300,
+          width: 300,
+//          child: Hero(
+//              tag: 'logo',
+//              child: Image.asset(
+//                'assets/icon/logo.png',
+//              ),
+//            )
+          child: ScaleTransition(
+            scale: _logoAnimation,
+            child: Hero(
+              tag: 'logo',
+              child: Image.asset(
+                'assets/icon/logo.png',
+              ),
+            ),
+          ),
+        ),
+      )
+    );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition( //透明度动画组件
-      opacity: _animation,  //执行动画
-      child: Image.network(  //网络图片
-          'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1546851657199&di=fdd278c2029f7826790191d59279dbbe&imgtype=0&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0112cb554438090000019ae93094f1.jpg%401280w_1l_2o_100sh.jpg',
-          scale: 2.0,  //进行缩放
-          fit:BoxFit.cover  // 充满父容器
-      ),
-    );
+    _logoController.dispose();
   }
 }

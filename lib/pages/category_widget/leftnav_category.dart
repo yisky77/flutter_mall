@@ -1,55 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 import '../../provide/category_info.dart';
 
 
 // 分类左边边数据显示
 class LeftnavData extends StatelessWidget {
-   List<dynamic> leftnavDataList;
-//  LeftnavData({this.leftnavDataList});
+  List<dynamic> leftnavDataList;
   int changeCurrentIndex = 0;
+  LeftnavData({this.leftnavDataList});
   @override
   Widget build(BuildContext context) {
-//    print(this.leftnavDataList);
-    return Provide<CategoryInfoProvide>(
-        builder:(context,child,val) {
-          leftnavDataList = Provide.value<CategoryInfoProvide>(context).categoryleftInfo['categoryList'];
-          changeCurrentIndex = Provide.value<CategoryInfoProvide>(context).currentIndex;
-//          print(leftnavDataList);
-            if (leftnavDataList.length>0) {
-              return Container(
-                width: ScreenUtil().setWidth(180),
-                decoration: BoxDecoration(
-                    border: Border(
-                      //              right: BorderSide(width: 1,color:Colors.black12)
-                    )
-                ),
-                child: ListView.builder(
-                  itemCount: leftnavDataList.length,
-                  itemBuilder: (context, index) {
-                    return _leftInkWel(context, index);
-                  },
-                ),
-              );
-            } else {
+      if (leftnavDataList.length>0) {
+        return Container(
+          width: ScreenUtil().setWidth(180),
+          decoration: BoxDecoration(
+              border: Border(
+                //              right: BorderSide(width: 1,color:Colors.black12)
+              )
+          ),
+          child: ListView.builder(
+            shrinkWrap:true,
+            itemCount: leftnavDataList.length,
+            itemBuilder: (context, index) {
+              return _leftInkWel(context, index);
+            },
+          ),
+        );
+      } else {
 //              return
-            }
-        }
-      );
-  }
+      }
+    }
 
 
-  Widget _leftInkWel(context,int index){
+
+  Widget _leftInkWel(context, index){
+    changeCurrentIndex = Provider.of<CategoryInfoProvide>(context).currentIndex;
     bool isClick=false;
     isClick=(index==changeCurrentIndex)?true:false;
     print(changeCurrentIndex);
     return InkWell(
       onTap: (){
         var id = leftnavDataList[index]['id'];
+        CategoryInfoProvide CategoryInfo = Provider.of<CategoryInfoProvide>(context, listen: false);
 //        获取id对应的分类信息数据
-        Provide.value<CategoryInfoProvide>(context).getCategoryIdInfo(id);
-        Provide.value<CategoryInfoProvide>(context).changeCategoryCurrentIndex(index);
+        CategoryInfo.getCategoryIdInfo(id.toString());
+        CategoryInfo.changeCategoryCurrentIndex(index);
       },
       child: Container(
         height: ScreenUtil().setHeight(90),

@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'orderlist_widge.dart';
 
-class MyOrder extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Flutter Demo',
-        theme:ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home:KeepAliveDemo()
-    );
-  }
-}
+//class MyOrder extends StatelessWidget {
+//  int index;
+//  MyOrder(this.index);
+//  @override
+//  Widget build(BuildContext context) {
+//    return KeepAliveDemo(index);
+//  }
+//}
 
 class KeepAliveDemo extends StatefulWidget {
+  int index = 0;
+  KeepAliveDemo(this.index);
+
   _KeepAliveDemoState createState() => _KeepAliveDemoState();
 }
 /*
@@ -26,11 +25,10 @@ SingleTickerProviderStateMixin 主要是我们初始化TabController时，
 */
 class _KeepAliveDemoState extends State<KeepAliveDemo> with SingleTickerProviderStateMixin {
   TabController _controller;
-
   @override
   void initState(){
     super.initState();
-    _controller = TabController(length:3, vsync: this);
+    _controller = TabController(length:5, vsync: this, initialIndex: widget.index);
   }
 
   //重写被释放的方法，只释放TabController
@@ -44,19 +42,30 @@ class _KeepAliveDemoState extends State<KeepAliveDemo> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
         appBar:AppBar(
-            title:Text('Keep Alive Demo'),
+            title:Text('订单详情'),
             bottom:TabBar(
+              indicatorColor: Color(0xffffffff),//选中时下划线颜色,如果使用了indicator这里设置无效
+              labelColor: Color(0xffffffff),//选中字体颜色
+              unselectedLabelColor: Color(0xffeeeeee),//未选中字体颜色
+              labelStyle: TextStyle(fontSize: 15),//选中字体大小
+              unselectedLabelStyle: TextStyle(fontSize: 14),//未选中字体大小
+              indicatorWeight: 2.5,//下划线高度
+//              indicatorPadding: EdgeInsets.fromLTRB(20,10,20,0),//
               controller: _controller,
               tabs:[
-                Tab(icon:Icon(Icons.directions_car)),
-                Tab(icon:Icon(Icons.directions_transit)),
-                Tab(icon:Icon(Icons.directions_bike)),
+                Tab(icon:Icon(Icons.reorder, color: Color(0xffffffff)),text:'订单',),
+                Tab(icon:Icon(Icons.payment, color: Color(0xffffffff)),text:'待付款'),
+                Tab(icon:Icon(Icons.directions_bike, color: Color(0xffffffff)),text:'待发货'),
+                Tab(icon:Icon(Icons.shopping_basket, color: Color(0xffffffff)),text:'待收货'),
+                Tab(icon:Icon(Icons.comment, color: Color(0xffffffff)),text:'待评价'),
               ],
             )
         ),
         body:TabBarView(
           controller: _controller,
           children: <Widget>[
+            OrderlistPage(),
+            OrderlistPage(),
             OrderlistPage(),
             OrderlistPage(),
             OrderlistPage()

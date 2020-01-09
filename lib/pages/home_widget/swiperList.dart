@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 //import '../../routers/application.dart';
@@ -31,8 +32,16 @@ class SwiperDiy extends StatelessWidget {
           itemBuilder: (BuildContext context,int index){
             return InkWell(
               onTap: (){
-//                _launchURL('${swiperDataList[index]['link']}');
                 var link = swiperDataList[index]['link'];
+                print('link');
+                Navigator.of(context)
+                    .push(new CupertinoPageRoute(builder: (_) {
+                  return new Browser(
+                    url: link,
+                    title: swiperDataList[index]['name'],
+                  );
+                }));
+//                _launchURL('${swiperDataList[index]['link']}');
 //                Navigator.of(context).push(new MaterialPageRoute(builder: (_) {
 //                  return  new WebviewScaffold(
 //                      url: link,

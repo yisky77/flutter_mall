@@ -1,13 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../provide/searchpro_provide.dart';
 import '../../common/emptydata.dart';
 import '../../common/loadingWidget.dart';
 //import '../../../routers/application.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
 
-class BrandGoodsPage extends StatelessWidget {
+//import 'package:flutter_easyrefresh/material_header.dart';
+//import 'package:flutter_easyrefresh/material_footer.dart';
+import 'package:flutter_easyrefresh/bezier_circle_header.dart';
+import 'package:flutter_easyrefresh/bezier_bounce_footer.dart';
+
+class BrandGoodsPage extends StatefulWidget {
+  @override
+  _BrandGoodsPageState createState() => _BrandGoodsPageState();
+}
+
+class _BrandGoodsPageState extends State<BrandGoodsPage> {
   int currentPage = 1;
+  EasyRefreshController _controller;
+  @override
+  void initState() {
+    super.initState();
+    _controller = EasyRefreshController();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,7 +34,7 @@ class BrandGoodsPage extends StatelessWidget {
           centerTitle: true,
       ),
       body: FutureBuilder(
-          future:_getsearchBackInfo(context),
+          future:_getbrandBackInfo(context,false),
           builder: (context,snapshot){
             switch(snapshot.connectionState) {
               case ConnectionState.none: return LoadingDataWidget();
@@ -24,29 +42,46 @@ class BrandGoodsPage extends StatelessWidget {
               case ConnectionState.waiting: return LoadingDataWidget();
               case ConnectionState.done:
                 if (snapshot.hasData) {
-                  return SizedBox(
+                  SearchProInfoProvide brandGoods = Provider.of<SearchProInfoProvide>(context);
+                  var brandGoodslist = brandGoods.brandGoodslistInfo;
+                  if (brandGoodslist.length > 0) {
+                    return SizedBox(
                       width: ScreenUtil().setWidth(750),
-                      child: Provide<SearchProInfoProvide>(
-                          builder:(context,child,val) {
-                            var topicGoodslist = Provide.value<SearchProInfoProvide>(context).brandGoodslistInfo['data']['list'];
-                            if (topicGoodslist.length > 0) {
-                              return Container(
-                                  color: Color(0xfff5f5f5),
-                                  child: ListView.builder(
-                                    itemCount: topicGoodslist.length,
-                                    itemBuilder: (context, index) {
-                                      return contentInkWel(context, index, topicGoodslist);
-                                    },
-//                        ),
-                                  )
-                              );
-                            } else {
-                              return EmptyDataWidget();
-                            }
-                          }
+                      child: Container(
+                          color: Color(0xfffffffff),
+                          child: EasyRefresh.custom(
+                            topBouncing:false,
+                            controller: _controller,
+                            header: BezierCircleHeader(),
+                            footer: BezierBounceFooter(),
+                            enableControlFinishRefresh: false,
+                            enableControlFinishLoad: true,//是否开启控制结束加载
+                            slivers: <Widget>[
+                              SliverList(
+                                delegate: SliverChildBuilderDelegate((context, index) {
+                                  return contentInkWel(index, brandGoodslist);
+                                },
+                                  childCount: brandGoodslist.length,
+                                ),
+                              ),
+                            ],
+                            onRefresh: () async{
+                              this.currentPage = 1;
+                              _getbrandBackInfo(context,false);
+                            },
+                            onLoad: () async {
+                              this.currentPage += 1;
+                              _getbrandBackInfo(context,true);
+                            },
+                          )
                       ),
-                  );
+                    );
+                  } else {
+                      print('000');
+                      return EmptyDataWidget();
+                  }
                 } else {
+                  print('222222');
                   return EmptyDataWidget();
                 };
             }
@@ -55,12 +90,20 @@ class BrandGoodsPage extends StatelessWidget {
     );
   }
 
-  Future _getsearchBackInfo(BuildContext context ) async{
-    await  Provide.value<SearchProInfoProvide>(context).getBrandGoodsInfos(currentPage);
+  Future _getbrandBackInfo(BuildContext context,bool isloadmore) async{
+//    await Provider.of<SearchProInfoProvide>(context, listen: false).getBrandGoodsInfos(currentPage, isloadmore);
+//    return '完成加载';
+    var BrandGoods = Provider.of<SearchProInfoProvide>(context, listen: false);
+    await BrandGoods.getBrandGoodsInfos(currentPage,isloadmore).then((res) {
+      _controller.finishLoad(success:true);
+      if(BrandGoods.noMoreTopicData) {
+        _controller.finishLoad(noMore: true);
+      }
+    });
     return '完成加载';
   }
 
-  Widget contentInkWel(context,int index, topicGoodslist){
+  Widget contentInkWel(int index, topicGoodslist){
     var stack = new Stack(
         children: <Widget>[
           new Image.network('${topicGoodslist[index]['picUrl']}',width: ScreenUtil().setWidth(750),

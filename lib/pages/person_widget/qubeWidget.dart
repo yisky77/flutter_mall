@@ -2,21 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import './order/order.dart';
 import 'package:flutter/cupertino.dart';
+import '../login_screen.dart';
 
 class QubeWidget extends StatelessWidget {
-  Widget qube(IconData icon,String label,context) {
+  Widget qube(IconData icon,String label,int index,context) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(
-//            cupertino右划返回操作
-            CupertinoPageRoute(builder: (BuildContext context){
-              return MyOrder();
-            }
-//            new MaterialPageRoute(builder: (context) {
-//                //指定跳转的页面
-//                return new MyOrder();
-//            },
-        ));
+        print(index);
+        if(index<=4) {
+          Navigator.push(context, new CupertinoPageRoute(builder: (BuildContext context){
+            return KeepAliveDemo(index);
+          }));
+        } else {
+          Navigator.push(context, new CupertinoPageRoute(builder: (BuildContext context){
+            return LoginPage();
+          }));
+        }
+
+//        Navigator.of(context).push(
+////            cupertino右划返回操作
+//            CupertinoPageRoute(builder: (BuildContext context){
+//              return MyOrder();
+//            }
+////            new MaterialPageRoute(builder: (context) {
+////                //指定跳转的页面
+////                return new MyOrder();
+////            },
+//        ));
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -45,9 +57,13 @@ class QubeWidget extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(top:5.0),
       padding: EdgeInsets.fromLTRB(10.0, 8.0, 10.0,0.0),
-      decoration: BoxDecoration(
-            borderRadius:BorderRadius.circular(0.0),
-        ),
+//      decoration: BoxDecoration(
+//        color:Colors.white,
+//        borderRadius: BorderRadius.circular(10),
+//      ),
+//      decoration: BoxDecoration(
+//            borderRadius:BorderRadius.circular(1.0),
+//        ),
 //    eInsets.only(top:10.0),
 //      width: ScreenUtil().setWidth(750),
 //      height: ScreenUtil().setHeight(295),
@@ -65,10 +81,10 @@ class QubeWidget extends StatelessWidget {
               ),
               child: Row(
                 children: <Widget>[
-                  new Expanded(child: qube(Icons.reorder, '全部订单',context),),
-                  new Expanded(child: qube(Icons.payment, '代付款',context),),
-                  new Expanded(child: qube(Icons.shopping_basket, '待收货',context),),
-                  new Expanded(child: qube(Icons.comment, '待评价',context),),
+                  new Expanded(child: qube(Icons.reorder, '全部',0,context),),
+                  new Expanded(child: qube(Icons.payment, '代付款',1,context),),
+                  new Expanded(child: qube(Icons.shopping_basket, '待收货',3,context),),
+                  new Expanded(child: qube(Icons.comment, '待评价',4,context),),
                 ],
               ),
             ),
@@ -82,10 +98,10 @@ class QubeWidget extends StatelessWidget {
 //              margin: EdgeInsets.only(bottom:10.0),
               child: Row(
                 children: <Widget>[
-                  new Expanded(child: qube(Icons.satellite, '我的优惠券',context),),
-                  new Expanded(child: qube(Icons.screen_share, '分销中心',context),),
-                  new Expanded(child: qube(Icons.favorite_border, '我的收藏',context),),
-                  new Expanded(child: qube(Icons.feedback, '意见反馈',context),)
+                  new Expanded(child: qube(Icons.satellite, '我的优惠券',5,context),),
+                  new Expanded(child: qube(Icons.screen_share, '分销中心',6,context),),
+                  new Expanded(child: qube(Icons.favorite_border, '我的收藏',7,context),),
+                  new Expanded(child: qube(Icons.feedback, '意见反馈',8,context),)
                 ],
               ),
             ),

@@ -1,16 +1,31 @@
 import 'package:flutter/material.dart';
 import './category_widget/leftnav_category.dart';
-//import '../service/service_method.dart';
 import './category_widget/right_catedata.dart';
-//import 'dart:convert';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-//import 'dart:ui';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 import '../provide/category_info.dart';
 import './common/loadingWidget.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
+//import 'package:flutter_easyrefresh/material_header.dart';
+//import 'package:flutter_easyrefresh/material_footer.dart';
+import 'package:flutter_easyrefresh/bezier_circle_header.dart';
+import 'package:flutter_easyrefresh/bezier_bounce_footer.dart';
+import './common/emptydata.dart';
 
-class CategoryScreen extends StatelessWidget {
+class CategoryScreen extends StatefulWidget {
+  @override
+  _CategoryScreenState createState() => _CategoryScreenState();
+}
+
+class _CategoryScreenState extends State<CategoryScreen> {
+  EasyRefreshController _controller;
+  @override
+  void initState() {
+    super.initState();
+    _controller = EasyRefreshController();
+  }
+
   @override
   Widget build(BuildContext context) {
 //    final height = window.physicalSize.height; //获取手机屏幕高度
@@ -20,48 +35,71 @@ class CategoryScreen extends StatelessWidget {
           centerTitle:true,
         ),
         body:FutureBuilder(
-//          future:request('get','CategoryIndexContent'),
           future:_getBackInfo(context),
           builder: (context,snapshot){
+            CategoryInfoProvide category = Provider.of<CategoryInfoProvide>(context);
             if(snapshot.hasData){
-//              var data = json.decode(snapshot.data.toString());
-//              List<Map> leftnavDataList = (data['data']['categoryList'] as List).cast();
-//              var picUrl = data['data']['currentCategory']['picUrl'];
-//              List<Map> currentSubCategory = (data['data']['currentSubCategory'] as List).cast();
-//              print('99999999');
-
-              return SizedBox(
-                  child: Container(
-                  color: const Color(0xffffffff),//0x 后面开始 两位FF表示透明度16进制，或者Colors.white
-                  child: Row(
-                    children: <Widget>[
-                      LeftnavData(),
-                      new Container(
-                          width: ScreenUtil().setWidth(570),
-                          color: Color(0xfff8f8f8),
-                          padding:EdgeInsets.only(left:10,top:0),
-                          child: ListView(
-                            children: <Widget>[
-//                              Rightcatedata(currentSubCategory:currentSubCategory,picUrl:picUrl),   //
-                              Rightcatedata(),   //
-                            ],
-                          ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
+              if(category.categoryleftInfo['errno'] == 0) {
+                var leftnavDataList = category.categoryleftInfo['data']['categoryList'];
+                if (leftnavDataList.length > 0) {
+                  return EasyRefresh.custom(
+                      topBouncing: false,
+                      controller: _controller,
+                      header: BezierCircleHeader(),
+                      footer: BezierBounceFooter(),
+                      enableControlFinishRefresh: false,
+                      enableControlFinishLoad: true,
+                      //是否开启控制结束加载
+                      slivers: <Widget>[
+                        SliverList(
+                            delegate: SliverChildBuilderDelegate((context, index) {
+                              return SizedBox(
+                                  child: Container(
+                                      color: const Color(0xffffffff),
+                                      //0x 后面开始 两位FF表示透明度16进制，或者Colors.white
+                                      child: Row(
+                                        children: <Widget>[
+                                          LeftnavData(leftnavDataList: leftnavDataList),
+                                          Container(
+                                              width: ScreenUtil().setWidth(570),
+                                              color: Color(0xfff8f8f8),
+                                              padding: EdgeInsets.only(left:10,top:0),
+                                              child: ListView(
+                                                shrinkWrap:true,
+                                                children: <Widget>[
+                                                  Rightcatedata(),
+                                                ],
+                                              ),
+                                          ),
+                                        ],
+                                      )
+                                  )
+                              );
+                            },
+                              childCount: 1,
+                            )
+                        )
+                      ],
+                      onRefresh: () async {
+                        _getBackInfo(context);
+                      }
+                  );
+                } else {
+                  return EmptyDataWidget();
+                }
+              } else {
+                return EmptyDataWidget();
+              }
             } else if (snapshot.hasError) {
-              print('加载左侧分类出错');
-              Fluttertoast.showToast(
-                  msg: "This is Center Short Toast",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER,
-                  timeInSecForIos: 1,
-                  backgroundColor: Colors.red,
-                  textColor: Colors.white,
-                  fontSize: 16.0
-              );
+//              Fluttertoast.showToast(
+//                  msg: "加载分类出错",
+//                  toastLength: Toast.LENGTH_SHORT,
+//                  gravity: ToastGravity.CENTER,
+//                  timeInSecForIos: 1,
+//                  backgroundColor: Color.fromARGB(100,0,0,0),
+//                  textColor: Colors.white,
+//                  fontSize: 16.0
+//              );
             } else {
               return LoadingDataWidget();
             }
@@ -71,8 +109,11 @@ class CategoryScreen extends StatelessWidget {
   }
 
   Future _getBackInfo(BuildContext context )async{
-    await  Provide.value<CategoryInfoProvide>(context).getCategoryleftInfo();
-    return '完成加载';
+      CategoryInfoProvide Categorylist = Provider.of<CategoryInfoProvide>(context, listen: false);
+      await Categorylist.getCategoryleftInfo().then((res) {
+        _controller.finishLoad(success:true);
+      });
+      return '完成加载';
   }
 
 }

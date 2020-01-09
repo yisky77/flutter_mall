@@ -1,59 +1,68 @@
 import 'package:flutter/material.dart';
 import 'pages/splash_screen.dart';
-import 'package:provide/provide.dart';
-import 'package:provide/provider.dart';
+import 'package:provider/provider.dart';
 import 'provide/counter.dart';
 import 'provide/details_info.dart';
 import 'provide/category_info.dart';
 import 'provide/searchpro_provide.dart';
+import 'provide/cartprovider.dart';
 import './routers/routes.dart';
 import './routers/application.dart';
 import 'package:fluro/fluro.dart';
+//import 'pages/swiperView.dart';
 //import './pages/bottom_navigation_widget.dart';
 
 void main(){
-  var counter = Counter();
-  var providers = Providers();
-  var detailsInfoProvide = DetailsInfoProvide();
-  var categoryInfoProvide = CategoryInfoProvide();
-  var searchProInfoProvide = SearchProInfoProvide();
-  providers
-    ..provide(Provider<Counter>.value(counter))//把counter类加入到状态管理
-    ..provide(Provider<CategoryInfoProvide>.value(categoryInfoProvide))//
-    ..provide(Provider<DetailsInfoProvide>.value(detailsInfoProvide))//
-    ..provide(Provider<SearchProInfoProvide>.value(searchProInfoProvide));//
-  runApp(ProviderNode(child: MyApp(),providers: providers, ));
+    runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+
+
   @override
   Widget build(BuildContext context) {
-    //-------------------主要代码start
+    var counter = Counter();
+    var detailsInfoProvide = DetailsInfoProvide();
+    var categoryInfoProvide = CategoryInfoProvide();
+    var searchProInfoProvide = SearchProInfoProvide();
+    var cartProvide = CartProvide();
     final router = Router();
     Routes.configureRoutes(router);
     Application.router=router;
-    //-------------------主要代码end
     final title="新巢蜜商城";
-    return MaterialApp(
-//        providers: [
-          ChangeNotifierProvider(builder: (_) => counter),
-//          ChangeNotifierProvider(builder: (_) => catergoyGoodsListProvide),
-//          ChangeNotifierProvider(builder: (_) => detailsInfoProvide),
-//          ChangeNotifierProvider(builder: (_) => cartProvide),
-//          ChangeNotifierProvider(builder: (_) => currentIndexProvide),
-        ],
-        title:title,
-        onGenerateRoute: Application.router.generator,
-        debugShowCheckedModeBanner: false,
-        theme: new ThemeData(
-          brightness: Brightness.light, //body背景颜色
-          primaryColor: Colors.white, //标题栏背景颜色
-//          accentColor: Colors.blue,
-//          highlightColor: Colors.transparent,
-//          splashFactory: const NoSplashFactory(), //去除水波纹
-        ),
-//        home: BottomNavigationWidget()
-        home: SplashScreen()
+    return MultiProvider(
+            providers: [
+            //这里是关键注册通知吧
+              ChangeNotifierProvider(builder: (_) => cartProvide),
+              ChangeNotifierProvider(builder: (_) => detailsInfoProvide),
+              ChangeNotifierProvider(builder: (_) => categoryInfoProvide),
+              ChangeNotifierProvider(builder: (_) => searchProInfoProvide)
+            ],
+            child: MaterialApp(
+              title:title,
+              onGenerateRoute: Application.router.generator,
+              debugShowCheckedModeBanner: false,
+              theme: new ThemeData(
+                brightness: Brightness.light, //body背景颜色
+                primaryColor: Color(0xfffa436a), //标题栏背景颜色
+//                primaryColor: Colors.pink[300], //标题栏背景颜色
+                accentColor: Colors.blue,
+                highlightColor: Colors.transparent,
+                splashFactory: const NoSplashFactory(), //去除水波纹
+              ),
+      //        home: BottomNavigationWidget()
+  //            home: MultiProvider(
+  //              providers: [
+  //              //这里是关键注册通知吧
+  //                  ChangeNotifierProvider(builder: (_) => counter),
+  //              //  ChangeNotifierProvider(builder: (_) => detailsInfoProvide),
+  //              //  ChangeNotifierProvider(builder: (_) => categoryInfoProvide),
+  //                  ChangeNotifierProvider(builder: (_) => searchProInfoProvide),
+  //              ],
+  //              child: SplashScreen(),
+              home: SplashScreen(),
+//              home: SwiperViewDiy(),
+            )
     );
   }
 }

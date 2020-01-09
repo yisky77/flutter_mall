@@ -13,4 +13,7 @@ const servicePath={
   'Topicgoodslist':serviceUrl1+'/topic/list',
   'Brandgoodslist':serviceUrl1+'/brand/list',
   'searchgoodslist':serviceUrl1+'/goods/list',
+  'collect':serviceUrl1+'/collect/addordelete',
+  'cartlist':serviceUrl1+'/cart/index',
+
 };
